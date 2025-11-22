@@ -15,6 +15,7 @@ const App: React.FC = () => {
   const checkOnboardingStatus = async () => {
     try {
       const complete = await storage.isOnboardingComplete();
+      console.log('App: Onboarding status check result:', complete);
       setIsOnboardingComplete(complete);
     } catch (error) {
       console.error('Error checking onboarding status:', error);

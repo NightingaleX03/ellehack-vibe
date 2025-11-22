@@ -19,6 +19,7 @@ const navItems: NavItem[] = [
   {name: 'Emergency', screen: 'Emergency', icon: '🆘'},
   {name: 'Roommates', screen: 'Roommates', icon: '🏠'},
   {name: 'Chat', screen: 'Chat', icon: '💬'},
+  {name: 'Settings', screen: 'Settings', icon: '⚙️'},
 ];
 
 export const TopNavBar: React.FC = () => {

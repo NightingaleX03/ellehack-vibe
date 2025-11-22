@@ -8,6 +8,8 @@ export interface UserProfile {
   userType: UserType;
   interests: Interest[];
   budget: BudgetPreference;
+  postalCode?: string;
+  address?: string;
   roommatePreferences?: {
     budget: BudgetPreference;
     location?: string;
