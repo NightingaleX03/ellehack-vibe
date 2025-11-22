@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 
+<<<<<<< HEAD
 // Load environment variables from .env file
 require('dotenv').config({path: path.resolve(__dirname, '.env')});
 
@@ -32,6 +33,9 @@ try {
 } catch (e) {
   packageJson = { name: 'citybuddy-ai' };
 }
+=======
+const projectRoot = __dirname;
+>>>>>>> 14739dc8e3b3bbc4531facfb6096261d768e182d
 
 module.exports = {
   context: projectRoot,
@@ -47,9 +51,11 @@ module.exports = {
     uniqueName: 'citybuddy-ai-web',
     clean: true,
   },
+
   resolveLoader: {
     modules: [path.resolve(projectRoot, 'node_modules'), 'node_modules'],
   },
+
   resolve: {
     modules: [
       path.resolve(projectRoot, 'src'),
@@ -58,34 +64,54 @@ module.exports = {
     ],
     alias: {
       'react-native$': 'react-native-web',
-      '@react-native-async-storage/async-storage': '@react-native-async-storage/async-storage',
+      '@react-native-async-storage/async-storage':
+        '@react-native-async-storage/async-storage',
+
       '@': path.resolve(projectRoot, 'src'),
-      '@react-native-vector-icons/material-design-icons': path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
-      'react-native-vector-icons/MaterialCommunityIcons': path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
-      '@expo/vector-icons/MaterialCommunityIcons': path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
-      '@expo/vector-icons/build/MaterialCommunityIcons': path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
-      '@expo/vector-icons/build/createIconSet': path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
-      '@expo/vector-icons': path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
-      'react-native-vector-icons': path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
+
+      '@react-native-vector-icons/material-design-icons':
+        path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
+      'react-native-vector-icons/MaterialCommunityIcons':
+        path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
+      '@expo/vector-icons/MaterialCommunityIcons':
+        path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
+      '@expo/vector-icons/build/MaterialCommunityIcons':
+        path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
+      '@expo/vector-icons/build/createIconSet':
+        path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
+      '@expo/vector-icons':
+        path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
+      'react-native-vector-icons':
+        path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js'),
+
       '@env': path.resolve(projectRoot, 'src', 'config', 'env.web.ts'),
     },
-    extensions: ['.web.js', '.js', '.web.ts', '.web.tsx', '.ts', '.tsx', '.json'],
+
+    extensions: [
+      '.web.js', '.js',
+      '.web.ts', '.web.tsx', '.ts', '.tsx',
+      '.json'
+    ],
+
     symlinks: false,
     roots: [projectRoot],
     mainFields: ['browser', 'module', 'main'],
+
     fallback: {
-      "path": require.resolve("path-browserify"),
-      "os": require.resolve("os-browserify/browser"),
-      "crypto": require.resolve("crypto-browserify"),
-      "fs": false,
-      "stream": require.resolve("stream-browserify"),
-      "util": require.resolve("util/"),
-      "buffer": require.resolve("buffer/"),
-      "process": require.resolve("process/browser"),
-      "vm": require.resolve("vm-browserify"),
-      "events": require.resolve("events/"),
+      fs: false, // Important: do NOT polyfill fs
+      net: false,
+      tls: false,
+      crypto: false, // unless needed
+      http: false,
+      https: false,
+      stream: false,
+
+      // these two you explicitly polyfill already:
+      process: require.resolve("process/browser"),
+      buffer: require.resolve("buffer"),
     },
   },
+
   devServer: {
     static: {
       directory: path.resolve(projectRoot, 'web'),
@@ -103,15 +129,14 @@ module.exports = {
       },
     },
   },
+
   module: {
     rules: [
       {
         test: /\.(js|jsx|ts|tsx)$/,
         exclude: (modulePath) => {
-          // Exclude node_modules except for packages that need JSX processing
           if (modulePath.includes('node_modules')) {
-            // Check if this is a package that needs JSX processing
-            const needsProcessing = 
+            const needsProcessing =
               modulePath.includes('react-native-vector-icons') ||
               (modulePath.includes('@expo') && modulePath.includes('vector-icons'));
             return !needsProcessing;
@@ -127,7 +152,7 @@ module.exports = {
           options: {
             presets: [
               '@babel/preset-env',
-              ['@babel/preset-react', {runtime: 'automatic'}],
+              ['@babel/preset-react', { runtime: 'automatic' }],
               '@babel/preset-typescript',
               'module:metro-react-native-babel-preset',
             ],
@@ -146,37 +171,37 @@ module.exports = {
           },
         },
       },
+
       {
         test: /\.(png|jpe?g|gif|svg)$/,
-        use: {
-          loader: 'url-loader',
-          options: {
-            limit: 8192,
-          },
-        },
+        type: 'asset',
+        parser: { dataUrlCondition: { maxSize: 8192 } },
       },
+
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/,
         type: 'asset/resource',
-        generator: {
-          filename: 'fonts/[name][ext]',
-        },
+        generator: { filename: 'fonts/[name][ext]' },
       },
+
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
     ],
   },
+
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(projectRoot, 'web', 'index.html'),
       filename: 'index.html',
     }),
+
     new webpack.ProvidePlugin({
       process: 'process/browser',
       Buffer: ['buffer', 'Buffer'],
     }),
+<<<<<<< HEAD
         new webpack.DefinePlugin({
           'process.env': JSON.stringify({
             ...process.env,
@@ -184,16 +209,27 @@ module.exports = {
             GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY || '',
           }),
         }),
+=======
+
+    new webpack.DefinePlugin({
+      'process.env': JSON.stringify({
+        ...process.env,
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+      }),
+    }),
+
+>>>>>>> 14739dc8e3b3bbc4531facfb6096261d768e182d
     new webpack.NormalModuleReplacementPlugin(
       /^dotenv$/,
       path.resolve(projectRoot, 'node_modules', 'dotenv', 'lib', 'main.js')
     ),
-    // Replace @expo/vector-icons with our stub (match any path containing it)
+
     new webpack.NormalModuleReplacementPlugin(
       /.*@expo\/vector-icons.*/,
       path.resolve(projectRoot, 'web', 'stubs', 'IconStub.js')
     ),
   ],
+
   node: {
     global: true,
     __filename: false,

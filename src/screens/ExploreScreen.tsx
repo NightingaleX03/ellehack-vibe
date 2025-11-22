@@ -57,7 +57,7 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({navigation}) => {
             <Text variant="titleMedium" style={styles.cardTitle}>
               {item.name}
             </Text>
-            <Button mode="text" icon="arrow-right">
+            <Button mode="text">
               Explore
             </Button>
           </Card.Content>
@@ -80,8 +80,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subtitle: {
+<<<<<<< HEAD
     marginBottom: 8,
     color: '#666',
+=======
+    marginBottom: 16,
+    color: '#19052b',
+>>>>>>> 14739dc8e3b3bbc4531facfb6096261d768e182d
   },
   locationText: {
     marginBottom: 16,
@@ -90,6 +95,8 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 12,
+    borderWidth: 2,
+    borderColor: "#19052b"
   },
   cardContent: {
     flexDirection: 'row',

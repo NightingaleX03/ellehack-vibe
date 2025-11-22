@@ -122,12 +122,12 @@ export const ChatScreen: React.FC<ChatScreenProps> = ({navigation}) => {
           onSubmitEditing={handleSend}
           disabled={loading}
         />
-        <Button
+        <Button 
           mode="contained"
           onPress={handleSend}
           style={styles.sendButton}
           disabled={loading || !inputText.trim()}
-          icon="send">
+          >
           Send
         </Button>
       </View>
@@ -188,6 +188,7 @@ const styles = StyleSheet.create({
   },
   sendButton: {
     justifyContent: 'center',
+    borderColor: '#19052b',
   },
 });
 

@@ -1,4 +1,4 @@
-# CityBuddy AI - Hackathon MVP 🏙️
+#  🏙️ CityBuddy 🏙️
 
 A React Native app built with TypeScript that helps newcomers navigate their city with AI-powered recommendations.
 
