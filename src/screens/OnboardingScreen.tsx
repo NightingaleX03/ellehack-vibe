@@ -67,7 +67,8 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
       userType,
       interests: interests.length > 0 ? interests : ['food', 'parks'],
       budget,
-      postalCode: postalCode.trim() || undefined,
+      // Use provided postal code or default to downtown Toronto
+      postalCode: postalCode.trim() || 'M5H 2N2',
       address: address.trim() || undefined,
       roommatePreferences: showRoommatePrefs
         ? {

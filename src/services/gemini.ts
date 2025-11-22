@@ -1,6 +1,7 @@
 import {GoogleGenerativeAI} from '@google/generative-ai';
 import {UserProfile, Recommendation, CompatibilityScore, EmergencyService} from '../types';
 import {getApiKey} from '../config/env';
+import {postalCodeToCoordinates} from '../utils/location';
 
 // Get API key from environment
 const API_KEY = getApiKey();
@@ -15,8 +16,12 @@ export const geminiService = {
   async getRecommendations(
     category: string,
     userProfile: UserProfile,
-    location: string = 'downtown'
+    location?: string
   ): Promise<Recommendation[]> {
+    // Use postal code from profile, or default to downtown Toronto
+    const postalCode = userProfile.postalCode || 'M5H 2N2';
+    const searchLocation = location || `${postalCode}, Toronto, ON, Canada`;
+    
     if (!genAI) {
       return this.getMockRecommendations(category);
     }
@@ -24,16 +29,42 @@ export const geminiService = {
     try {
       const model = genAI.getGenerativeModel({model: 'gemini-pro'});
       
-      const prompt = `You are a helpful city guide. Generate 5-7 local ${category} recommendations for a ${userProfile.userType} with interests in ${userProfile.interests.join(', ')} and a ${userProfile.budget} budget preference. Location: ${location}.
+      // Get coordinates for better location context
+      const coordinates = await postalCodeToCoordinates(postalCode);
+      const locationContext = coordinates 
+        ? `coordinates ${coordinates.lat}, ${coordinates.lng} (postal code ${postalCode})`
+        : `postal code ${postalCode}`;
+      
+      // Build comprehensive prompt with user preferences and location
+      const interestsList = userProfile.interests.length > 0 
+        ? userProfile.interests.join(', ') 
+        : 'general city exploration';
+      
+      const prompt = `You are a helpful city guide AI. Generate 7-10 local ${category} recommendations near ${locationContext} in Toronto, Canada.
 
-Return ONLY a JSON array with this exact format (no markdown, no code blocks):
+USER PROFILE:
+- User Type: ${userProfile.userType}
+- Interests: ${interestsList}
+- Budget Preference: ${userProfile.budget}
+- Location: ${postalCode}, Toronto, ON${coordinates ? ` (${coordinates.lat}, ${coordinates.lng})` : ''}
+
+REQUIREMENTS:
+1. Find places CLOSEST to ${postalCode} first (prioritize within 2km, then 5km)
+2. Filter by user's ${userProfile.budget} budget preference
+3. Match user's interests: ${interestsList}
+4. Sort results by distance (closest first)
+5. Include accurate distances from ${postalCode}
+6. Provide real addresses in Toronto area
+7. Consider user type (${userProfile.userType}) when suggesting places
+
+Return ONLY a JSON array sorted by distance (closest first), with this exact format (no markdown, no code blocks):
 [
   {
     "name": "Place Name",
     "category": "${category}",
     "distance": "0.5 km",
-    "address": "123 Main St",
-    "description": "Brief description"
+    "address": "123 Main St, Toronto, ON",
+    "description": "Brief description matching user preferences"
   }
 ]`;
 
@@ -47,15 +78,23 @@ Return ONLY a JSON array with this exact format (no markdown, no code blocks):
         jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       }
       
-      const recommendations = JSON.parse(jsonText);
-      return recommendations;
+      let recommendations: Recommendation[] = JSON.parse(jsonText);
+      
+      // Sort by distance (convert "X km" to number for sorting)
+      recommendations = this.sortByDistance(recommendations);
+      
+      // Filter to top 7 closest results
+      return recommendations.slice(0, 7);
     } catch (error) {
       console.error('Error getting recommendations:', error);
       return this.getMockRecommendations(category);
     }
   },
 
-  async getEmergencyServices(location: string = 'downtown'): Promise<EmergencyService[]> {
+  async getEmergencyServices(location?: string, postalCode?: string): Promise<EmergencyService[]> {
+    const userPostalCode = postalCode || 'M5H 2N2';
+    const searchLocation = location || `${userPostalCode}, Toronto, ON, Canada`;
+    
     if (!genAI) {
       return this.getMockEmergencyServices();
     }
@@ -63,7 +102,22 @@ Return ONLY a JSON array with this exact format (no markdown, no code blocks):
     try {
       const model = genAI.getGenerativeModel({model: 'gemini-pro'});
       
-      const prompt = `Generate a list of 5-7 emergency services (hospitals, clinics, police stations) near ${location}. 
+      // Get coordinates for better location context
+      const coordinates = await postalCodeToCoordinates(userPostalCode);
+      const locationContext = coordinates 
+        ? `coordinates ${coordinates.lat}, ${coordinates.lng} (postal code ${userPostalCode})`
+        : `postal code ${userPostalCode}`;
+      
+      const prompt = `Generate a list of 7-10 emergency services (hospitals, clinics, police stations) CLOSEST to ${locationContext} in Toronto, Canada.
+
+REQUIREMENTS:
+1. Find services CLOSEST to ${userPostalCode} first (prioritize within 3km, then 10km)
+2. Sort by distance (closest first)
+3. Include accurate distances from ${userPostalCode}
+4. Provide real addresses in Toronto area
+5. Include phone numbers if available
+
+Location: ${searchLocation}${coordinates ? ` (${coordinates.lat}, ${coordinates.lng})` : ''} 
 
 Return ONLY a JSON array with this exact format (no markdown, no code blocks):
 [
@@ -85,8 +139,13 @@ Return ONLY a JSON array with this exact format (no markdown, no code blocks):
         jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       }
       
-      const services = JSON.parse(jsonText);
-      return services;
+      let services: EmergencyService[] = JSON.parse(jsonText);
+      
+      // Sort by distance (closest first)
+      services = this.sortEmergencyByDistance(services);
+      
+      // Return top 7 closest
+      return services.slice(0, 7);
     } catch (error) {
       console.error('Error getting emergency services:', error);
       return this.getMockEmergencyServices();
@@ -171,11 +230,27 @@ Return ONLY a JSON object with this exact format (no markdown, no code blocks):
     try {
       const model = genAI.getGenerativeModel({model: 'gemini-pro'});
       
-      const prompt = `You are CityBuddy AI, a helpful assistant for a ${userProfile.userType} in a new city. Their interests are: ${userProfile.interests.join(', ')}. Budget preference: ${userProfile.budget}.
+      const postalCode = userProfile.postalCode || 'M5H 2N2';
+      const interestsList = userProfile.interests.length > 0 
+        ? userProfile.interests.join(', ') 
+        : 'general city exploration';
+      
+      const prompt = `You are CityBuddy AI, a helpful assistant for a ${userProfile.userType} in Toronto, Canada.
+
+USER CONTEXT:
+- Location: ${postalCode}, Toronto, ON
+- Interests: ${interestsList}
+- Budget: ${userProfile.budget}
+- User Type: ${userProfile.userType}
+
+When recommending places, prioritize:
+1. Locations closest to ${postalCode}
+2. Places matching their ${userProfile.budget} budget
+3. Activities matching their interests: ${interestsList}
 
 User question: ${message}
 
-Provide a helpful, concise answer.`;
+Provide a helpful, concise answer that considers their location and preferences.`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
@@ -217,6 +292,51 @@ Provide a helpful, concise answer.`;
       {name: 'Downtown Police Station', type: 'police', address: '300 Safety Ave', distance: '0.8 km', phone: '555-911'},
       {name: 'Community Health Center', type: 'clinic', address: '400 Wellness Blvd', distance: '1.2 km', phone: '555-0300'},
     ];
+  },
+
+  /**
+   * Sort recommendations by distance (closest first)
+   * Converts "X km" or "X m" to numeric value for sorting
+   */
+  sortByDistance(recommendations: Recommendation[]): Recommendation[] {
+    const parseDistance = (distance: string): number => {
+      // Extract number from "0.5 km" or "500 m"
+      const match = distance.match(/([\d.]+)\s*(km|m)/i);
+      if (!match) return Infinity;
+      
+      const value = parseFloat(match[1]);
+      const unit = match[2].toLowerCase();
+      
+      // Convert to km for consistent sorting
+      return unit === 'm' ? value / 1000 : value;
+    };
+
+    return [...recommendations].sort((a, b) => {
+      const distA = parseDistance(a.distance);
+      const distB = parseDistance(b.distance);
+      return distA - distB;
+    });
+  },
+
+  /**
+   * Sort emergency services by distance (closest first)
+   */
+  sortEmergencyByDistance(services: EmergencyService[]): EmergencyService[] {
+    const parseDistance = (distance: string): number => {
+      const match = distance.match(/([\d.]+)\s*(km|m)/i);
+      if (!match) return Infinity;
+      
+      const value = parseFloat(match[1]);
+      const unit = match[2].toLowerCase();
+      
+      return unit === 'm' ? value / 1000 : value;
+    };
+
+    return [...services].sort((a, b) => {
+      const distA = parseDistance(a.distance);
+      const distB = parseDistance(b.distance);
+      return distA - distB;
+    });
   },
 };
 

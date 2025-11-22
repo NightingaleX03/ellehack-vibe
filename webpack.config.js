@@ -2,6 +2,9 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 
+// Load environment variables from .env file
+require('dotenv').config({path: path.resolve(__dirname, '.env')});
+
 // Get the absolute path to the project root
 const projectRoot = path.resolve(__dirname);
 // Force webpack to use project root
@@ -174,12 +177,13 @@ module.exports = {
       process: 'process/browser',
       Buffer: ['buffer', 'Buffer'],
     }),
-    new webpack.DefinePlugin({
-      'process.env': JSON.stringify({
-        ...process.env,
-        GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
-      }),
-    }),
+        new webpack.DefinePlugin({
+          'process.env': JSON.stringify({
+            ...process.env,
+            GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+            GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY || '',
+          }),
+        }),
     new webpack.NormalModuleReplacementPlugin(
       /^dotenv$/,
       path.resolve(projectRoot, 'node_modules', 'dotenv', 'lib', 'main.js')

@@ -7,6 +7,7 @@ import {RootStackParamList} from '../navigation/types';
 import {geminiService} from '../services/gemini';
 import {storage} from '../utils/storage';
 import {Recommendation} from '../types';
+import {getLocation} from '../utils/location';
 
 type RecommendationsScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -36,6 +37,11 @@ export const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
     try {
       const profile = await storage.getProfile();
       if (profile) {
+        // Ensure postal code is set (will use default if not)
+        const locationInfo = await getLocation();
+        if (!profile.postalCode) {
+          profile.postalCode = locationInfo.postalCode;
+        }
         const results = await geminiService.getRecommendations(category, profile);
         setRecommendations(results);
       }

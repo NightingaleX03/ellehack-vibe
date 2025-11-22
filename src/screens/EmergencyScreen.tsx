@@ -5,6 +5,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/types';
 import {geminiService} from '../services/gemini';
 import {EmergencyService} from '../types';
+import {getLocation} from '../utils/location';
 
 type EmergencyScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Emergency'>;
 
@@ -15,15 +16,28 @@ interface EmergencyScreenProps {
 export const EmergencyScreen: React.FC<EmergencyScreenProps> = ({navigation}) => {
   const [services, setServices] = useState<EmergencyService[]>([]);
   const [loading, setLoading] = useState(true);
+  const [location, setLocation] = useState<string>('Toronto');
+  const [postalCode, setPostalCode] = useState<string>('M5H 2N2');
 
   useEffect(() => {
+    loadLocation();
     loadEmergencyServices();
   }, []);
+
+  const loadLocation = async () => {
+    const locationInfo = await getLocation();
+    setLocation(locationInfo.location);
+    setPostalCode(locationInfo.postalCode);
+  };
 
   const loadEmergencyServices = async () => {
     setLoading(true);
     try {
-      const results = await geminiService.getEmergencyServices();
+      const locationInfo = await getLocation();
+      const results = await geminiService.getEmergencyServices(
+        locationInfo.location,
+        locationInfo.postalCode
+      );
       setServices(results);
     } catch (error) {
       console.error('Error loading emergency services:', error);
@@ -74,6 +88,9 @@ export const EmergencyScreen: React.FC<EmergencyScreenProps> = ({navigation}) =>
       </Text>
       <Text variant="bodyMedium" style={styles.subtitle}>
         Nearest emergency services
+      </Text>
+      <Text variant="bodySmall" style={styles.locationText}>
+        📍 {location} ({postalCode})
       </Text>
 
       {services.length === 0 ? (
@@ -163,8 +180,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subtitle: {
-    marginBottom: 16,
+    marginBottom: 8,
     color: '#666',
+  },
+  locationText: {
+    marginBottom: 16,
+    color: '#2196f3',
+    fontWeight: '500',
   },
   card: {
     marginBottom: 12,

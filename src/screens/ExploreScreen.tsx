@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
 import {Button, Card, Text} from 'react-native-paper';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigation/types';
+import {getLocation} from '../utils/location';
 
 type ExploreScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Explore'>;
 
@@ -11,6 +12,19 @@ interface ExploreScreenProps {
 }
 
 export const ExploreScreen: React.FC<ExploreScreenProps> = ({navigation}) => {
+  const [location, setLocation] = useState<string>('Toronto');
+  const [postalCode, setPostalCode] = useState<string>('M5H 2N2');
+
+  useEffect(() => {
+    loadLocation();
+  }, []);
+
+  const loadLocation = async () => {
+    const locationInfo = await getLocation();
+    setLocation(locationInfo.location);
+    setPostalCode(locationInfo.postalCode);
+  };
+
   const categories = [
     {name: 'Food & Restaurants', category: 'food', icon: '🍽️'},
     {name: 'Nightlife', category: 'nightlife', icon: '🍸'},
@@ -27,6 +41,9 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({navigation}) => {
       </Text>
       <Text variant="bodyMedium" style={styles.subtitle}>
         Discover local places by category
+      </Text>
+      <Text variant="bodySmall" style={styles.locationText}>
+        📍 {location} ({postalCode})
       </Text>
 
       {categories.map((item, index) => (
@@ -63,8 +80,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   subtitle: {
-    marginBottom: 16,
+    marginBottom: 8,
     color: '#666',
+  },
+  locationText: {
+    marginBottom: 16,
+    color: '#2196f3',
+    fontWeight: '500',
   },
   card: {
     marginBottom: 12,
