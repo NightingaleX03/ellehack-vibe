@@ -39,21 +39,37 @@ export const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
     loadRecommendations();
   }, [navigation, category]);
 
+  const [error, setError] = useState<string | null>(null);
+
   const loadRecommendations = async () => {
     setLoading(true);
+    setError(null);
     try {
       const profile = await storage.getProfile();
-      if (profile) {
-        // Ensure postal code is set (will use default if not)
-        const locationInfo = await getLocation();
-        if (!profile.postalCode) {
-          profile.postalCode = locationInfo.postalCode;
-        }
-        const results = await geminiService.getRecommendations(category, profile);
+      if (!profile) {
+        setError('Please complete onboarding first to get personalized recommendations.');
+        setLoading(false);
+        return;
+      }
+      
+      // Ensure postal code is set (will use default if not)
+      const locationInfo = await getLocation();
+      if (!profile.postalCode) {
+        profile.postalCode = locationInfo.postalCode;
+      }
+      
+      console.log('Loading recommendations for category:', category, 'postal code:', profile.postalCode);
+      const results = await geminiService.getRecommendations(category, profile);
+      console.log('Recommendations received:', results.length, results);
+      
+      if (results.length === 0) {
+        setError('No places found. Make sure Google Maps APIs are enabled in Google Cloud Console. See GOOGLE_MAPS_SETUP.md for instructions.');
+      } else {
         setRecommendations(results);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading recommendations:', error);
+      setError(`Error: ${error?.message || 'Failed to load recommendations. Check console for details.'}`);
     } finally {
       setLoading(false);
     }
@@ -74,13 +90,29 @@ export const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
         {category.charAt(0).toUpperCase() + category.slice(1)} Recommendations
       </Text>
 
-      {recommendations.length === 0 ? (
+      {error && (
+        <Card style={[styles.card, styles.errorCard]}>
+          <Card.Content>
+            <Text variant="bodyMedium" style={styles.errorText}>
+              {error}
+            </Text>
+            <Text variant="bodySmall" style={styles.errorHint}>
+              Tip: Make sure you've enabled Geocoding API and Places API in Google Cloud Console.
+            </Text>
+          </Card.Content>
+        </Card>
+      )}
+
+      {recommendations.length === 0 && !error ? (
         <Card style={styles.card}>
           <Card.Content>
             <Text>No recommendations found. Try again later.</Text>
+            <Text variant="bodySmall" style={{marginTop: 8, color: '#666'}}>
+              Make sure Google Maps APIs are enabled and your API keys are correct.
+            </Text>
           </Card.Content>
         </Card>
-      ) : (
+      ) : recommendations.length > 0 ? (
         recommendations.map((rec, index) => (
           <Card key={index} style={styles.card} mode="elevated">
             <Card.Content>
@@ -108,7 +140,7 @@ export const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
             </Card.Content>
           </Card>
         ))
-      )}
+      ) : null}
 
       <Button
         mode="outlined"
@@ -179,6 +211,18 @@ const styles = StyleSheet.create({
   refreshButton: {
     marginTop: 8,
     marginBottom: 16,
+  },
+  errorCard: {
+    backgroundColor: '#fff3cd',
+    borderColor: '#ffc107',
+  },
+  errorText: {
+    color: '#856404',
+    marginBottom: 8,
+  },
+  errorHint: {
+    color: '#856404',
+    fontStyle: 'italic',
   },
 });
 

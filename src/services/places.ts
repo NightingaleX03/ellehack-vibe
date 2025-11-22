@@ -17,6 +17,13 @@ export const placesService = {
     radius: number = 2000 // 2km default
   ): Promise<Recommendation[]> {
     const API_KEY = getGoogleMapsApiKey();
+    console.log('Places API - API Key status:', {
+      hasKey: !!API_KEY,
+      keyLength: API_KEY ? API_KEY.length : 0,
+      query,
+      postalCode,
+    });
+    
     if (!API_KEY) {
       console.warn('Google Maps API key not found');
       return [];
@@ -30,8 +37,20 @@ export const placesService = {
       const geocodeResponse = await fetch(geocodeUrl);
       const geocodeData = await geocodeResponse.json();
       
+      console.log('Geocoding API response:', {
+        status: geocodeData.status,
+        hasResults: !!geocodeData.results,
+        resultCount: geocodeData.results?.length || 0,
+        errorMessage: geocodeData.error_message,
+      });
+      
       if (geocodeData.status !== 'OK' || !geocodeData.results || geocodeData.results.length === 0) {
-        console.warn('Geocoding failed for postal code:', postalCode);
+        console.error('Geocoding failed for postal code:', postalCode, 'Status:', geocodeData.status, 'Error:', geocodeData.error_message);
+        if (geocodeData.status === 'REQUEST_DENIED') {
+          console.error('❌ Geocoding API not enabled or API key invalid. Enable Geocoding API in Google Cloud Console.');
+        } else if (geocodeData.status === 'OVER_QUERY_LIMIT') {
+          console.error('❌ Geocoding API quota exceeded. Check usage in Google Cloud Console.');
+        }
         return [];
       }
       
@@ -51,10 +70,29 @@ export const placesService = {
       const placesResponse = await fetch(placesUrl);
       const placesData = await placesResponse.json();
       
+      console.log('Places API response:', {
+        status: placesData.status,
+        resultCount: placesData.results?.length || 0,
+        errorMessage: placesData.error_message,
+      });
+      
       if (placesData.status !== 'OK' || !placesData.results) {
-        console.warn('Places search failed:', placesData.status);
+        console.error('❌ Places search failed:', {
+          status: placesData.status,
+          errorMessage: placesData.error_message || '',
+          query: searchQuery,
+        });
+        if (placesData.status === 'REQUEST_DENIED') {
+          console.error('❌ Places API not enabled or API key invalid. Enable Places API in Google Cloud Console.');
+        } else if (placesData.status === 'OVER_QUERY_LIMIT') {
+          console.error('❌ Places API quota exceeded. Check usage in Google Cloud Console.');
+        } else if (placesData.status === 'ZERO_RESULTS') {
+          console.warn('⚠️ No places found for query:', searchQuery);
+        }
         return [];
       }
+      
+      console.log('✅ Places API success! Found', placesData.results.length, 'places');
       
       // Convert Places API results to Recommendation format
       return placesData.results.slice(0, 7).map((place: any) => {

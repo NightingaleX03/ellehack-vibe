@@ -1,4 +1,5 @@
 import {storage} from './storage';
+import {getGoogleMapsApiKey} from '../config/env';
 
 // Default location: Downtown Toronto
 const DEFAULT_POSTAL_CODE = 'M5H 2N2'; // Toronto Financial District
@@ -40,8 +41,6 @@ export const getLocation = async (): Promise<LocationInfo> => {
   }
 };
 
-import {getGoogleMapsApiKey} from '../config/env';
-
 /**
  * Convert postal code to coordinates using Google Geocoding API
  */
@@ -76,7 +75,12 @@ export const postalCodeToCoordinates = async (postalCode: string): Promise<{lat:
         lng: location.lng,
       };
     } else {
-      console.warn('Geocoding failed, using default coordinates:', data.status);
+      console.error('Geocoding failed:', data.status, data.error_message || '');
+      if (data.status === 'REQUEST_DENIED') {
+        console.error('Geocoding API not enabled or API key invalid. Enable Geocoding API in Google Cloud Console.');
+      } else if (data.status === 'OVER_QUERY_LIMIT') {
+        console.error('Geocoding API quota exceeded. Check usage in Google Cloud Console.');
+      }
       return defaultCoords;
     }
   } catch (error) {
