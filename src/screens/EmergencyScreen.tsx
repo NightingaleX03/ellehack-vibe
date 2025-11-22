@@ -6,10 +6,7 @@ import {RootStackParamList} from '../navigation/types';
 import {geminiService} from '../services/gemini';
 import {EmergencyService} from '../types';
 
-type EmergencyScreenNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  'Emergency'
->;
+type EmergencyScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Emergency'>;
 
 interface EmergencyScreenProps {
   navigation: EmergencyScreenNavigationProp;

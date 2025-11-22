@@ -8,10 +8,7 @@ import {geminiService} from '../services/gemini';
 import {storage} from '../utils/storage';
 import {RoommateProfile, CompatibilityScore} from '../types';
 
-type RoommatesScreenNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  'Roommates'
->;
+type RoommatesScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Roommates'>;
 
 interface RoommatesScreenProps {
   navigation: RoommatesScreenNavigationProp;

@@ -1,4 +1,5 @@
 import React from 'react';
+import {View} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from './types';
@@ -9,6 +10,7 @@ import {RecommendationsScreen} from '../screens/RecommendationsScreen';
 import {EmergencyScreen} from '../screens/EmergencyScreen';
 import {RoommatesScreen} from '../screens/RoommatesScreen';
 import {ChatScreen} from '../screens/ChatScreen';
+import {TopNavBar} from '../components/TopNavBar';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -30,6 +32,16 @@ export const AppNavigator: React.FC<AppNavigatorProps> = ({
         {...props}
         onComplete={onOnboardingComplete || (() => {})}
       />
+    );
+  };
+
+  // Wrapper component to add top nav bar to screens
+  const ScreenWithNavBar = (Component: React.ComponentType<any>) => {
+    return (props: any) => (
+      <View style={{flex: 1}}>
+        <TopNavBar />
+        <Component {...props} />
+      </View>
     );
   };
 
@@ -62,35 +74,36 @@ export const AppNavigator: React.FC<AppNavigatorProps> = ({
         />
         <Stack.Screen
           name="Home"
-          component={HomeScreen}
-          options={{title: 'CityBuddy AI'}}
+          component={ScreenWithNavBar(HomeScreen)}
+          options={{headerShown: false}}
         />
         <Stack.Screen
           name="Explore"
-          component={ExploreScreen}
-          options={{title: 'Explore My Area'}}
+          component={ScreenWithNavBar(ExploreScreen)}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Emergency"
+          component={ScreenWithNavBar(EmergencyScreen)}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Roommates"
+          component={ScreenWithNavBar(RoommatesScreen)}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Chat"
+          component={ScreenWithNavBar(ChatScreen)}
+          options={{headerShown: false}}
         />
         <Stack.Screen
           name="Recommendations"
           component={RecommendationsScreen}
           options={({route}) => ({
             title: `${route.params.category.charAt(0).toUpperCase() + route.params.category.slice(1)} Recommendations`,
+            headerShown: true,
           })}
-        />
-        <Stack.Screen
-          name="Emergency"
-          component={EmergencyScreen}
-          options={{title: 'Emergency Help'}}
-        />
-        <Stack.Screen
-          name="Roommates"
-          component={RoommatesScreen}
-          options={{title: 'Roommate Finder'}}
-        />
-        <Stack.Screen
-          name="Chat"
-          component={ChatScreen}
-          options={{title: 'Talk to Gemini'}}
         />
       </Stack.Navigator>
     </NavigationContainer>
