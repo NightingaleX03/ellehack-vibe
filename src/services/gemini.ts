@@ -202,10 +202,7 @@ Provide a helpful, concise answer.`;
         {name: 'Central Park', category: 'parks', distance: '0.7 km', address: 'Park Ave', description: 'Large green space'},
         {name: 'Riverside Park', category: 'parks', distance: '1.5 km', address: 'River Rd', description: 'Scenic waterfront park'},
       ],
-      events: [
-        {name: 'City Festival', category: 'events', distance: '0.4 km', address: 'Downtown Square', description: 'Weekend festival'},
-        {name: 'Art Walk', category: 'events', distance: '0.9 km', address: 'Arts District', description: 'Monthly art showcase'},
-      ],
+      events: [],
     };
 
     return mockData[category] || [

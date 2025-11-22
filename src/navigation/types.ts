@@ -5,6 +5,7 @@ export type RootStackParamList = {
   Emergency: undefined;
   Roommates: undefined;
   Chat: undefined;
+  Settings: undefined;
   Recommendations: {category: string};
 };
 

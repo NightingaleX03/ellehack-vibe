@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {ScrollView, StyleSheet} from 'react-native';
 import {
   Button,
@@ -29,9 +29,24 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
   onComplete,
 }) => {
   console.log('OnboardingScreen: Rendering');
+  
+  // Check if onboarding is already complete and redirect
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      const isComplete = await storage.isOnboardingComplete();
+      if (isComplete) {
+        console.log('OnboardingScreen: Already complete, redirecting to Home');
+        navigation.replace('Home');
+      }
+    };
+    checkOnboarding();
+  }, [navigation]);
+
   const [userType, setUserType] = useState<UserType>('newcomer');
   const [interests, setInterests] = useState<Interest[]>([]);
   const [budget, setBudget] = useState<BudgetPreference>('medium');
+  const [postalCode, setPostalCode] = useState('');
+  const [address, setAddress] = useState('');
   const [showRoommatePrefs, setShowRoommatePrefs] = useState(false);
   const [roommateBudget, setRoommateBudget] = useState<BudgetPreference>('medium');
   const [roommateLocation, setRoommateLocation] = useState('');
@@ -52,6 +67,8 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
       userType,
       interests: interests.length > 0 ? interests : ['food', 'parks'],
       budget,
+      postalCode: postalCode.trim() || undefined,
+      address: address.trim() || undefined,
       roommatePreferences: showRoommatePrefs
         ? {
             budget: roommateBudget,
@@ -122,6 +139,30 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
             <RadioButton.Item label="Medium" value="medium" />
             <RadioButton.Item label="High" value="high" />
           </RadioButton.Group>
+        </Card.Content>
+      </Card>
+
+      <Card style={styles.card}>
+        <Card.Content>
+          <Text variant="titleMedium" style={styles.sectionTitle}>
+            Location
+          </Text>
+          <TextInput
+            label="Postal Code"
+            value={postalCode}
+            onChangeText={setPostalCode}
+            mode="outlined"
+            style={styles.input}
+            placeholder="e.g., M5H 2N2"
+          />
+          <TextInput
+            label="Address (optional)"
+            value={address}
+            onChangeText={setAddress}
+            mode="outlined"
+            style={styles.input}
+            placeholder="Street address"
+          />
         </Card.Content>
       </Card>
 

@@ -10,6 +10,7 @@ import {RecommendationsScreen} from '../screens/RecommendationsScreen';
 import {EmergencyScreen} from '../screens/EmergencyScreen';
 import {RoommatesScreen} from '../screens/RoommatesScreen';
 import {ChatScreen} from '../screens/ChatScreen';
+import {SettingsScreen} from '../screens/SettingsScreen';
 import {TopNavBar} from '../components/TopNavBar';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -95,6 +96,11 @@ export const AppNavigator: React.FC<AppNavigatorProps> = ({
         <Stack.Screen
           name="Chat"
           component={ScreenWithNavBar(ChatScreen)}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Settings"
+          component={ScreenWithNavBar(SettingsScreen)}
           options={{headerShown: false}}
         />
         <Stack.Screen
