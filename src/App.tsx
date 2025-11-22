@@ -8,12 +8,19 @@ const App: React.FC = () => {
   const [isOnboardingComplete, setIsOnboardingComplete] = useState<boolean | null>(null);
 
   useEffect(() => {
+    console.log('App mounted, checking onboarding status...');
     checkOnboardingStatus();
   }, []);
 
   const checkOnboardingStatus = async () => {
-    const complete = await storage.isOnboardingComplete();
-    setIsOnboardingComplete(complete);
+    try {
+      const complete = await storage.isOnboardingComplete();
+      setIsOnboardingComplete(complete);
+    } catch (error) {
+      console.error('Error checking onboarding status:', error);
+      // Default to showing onboarding if there's an error
+      setIsOnboardingComplete(false);
+    }
   };
 
   const handleOnboardingComplete = () => {
@@ -21,6 +28,7 @@ const App: React.FC = () => {
   };
 
   if (isOnboardingComplete === null) {
+    console.log('App: Still loading, showing loading indicator');
     return (
       <View style={styles.loading}>
         <ActivityIndicator size="large" />
@@ -28,6 +36,7 @@ const App: React.FC = () => {
     );
   }
 
+  console.log('App: Onboarding complete =', isOnboardingComplete, 'Rendering navigator');
   return (
     <PaperProvider>
       <AppNavigator
@@ -44,6 +53,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
+    minHeight: '100vh',
+    width: '100%',
   },
 });
 

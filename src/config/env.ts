@@ -3,6 +3,13 @@
 
 // Fallback function to get API key
 export const getApiKey = (): string => {
+  // For web, use process.env directly (set by webpack DefinePlugin)
+  if (typeof process !== 'undefined' && process.env) {
+    if ((process.env as any).GEMINI_API_KEY) {
+      return (process.env as any).GEMINI_API_KEY;
+    }
+  }
+
   try {
     // Try @env first (configured in babel.config.js)
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -26,6 +33,6 @@ export const getApiKey = (): string => {
   }
 
   // Final fallback
-  return (process.env as any).GEMINI_API_KEY || '';
+  return '';
 };
 

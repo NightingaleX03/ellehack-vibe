@@ -21,15 +21,26 @@ export const AppNavigator: React.FC<AppNavigatorProps> = ({
   initialRouteName = 'Onboarding',
   onOnboardingComplete,
 }) => {
-  const OnboardingWithHandler = (props: any) => (
-    <OnboardingScreen
-      {...props}
-      onComplete={onOnboardingComplete || (() => {})}
-    />
-  );
+  console.log('AppNavigator: Rendering with initialRouteName =', initialRouteName);
+  
+  const OnboardingWithHandler = (props: any) => {
+    console.log('OnboardingWithHandler: Rendering OnboardingScreen');
+    return (
+      <OnboardingScreen
+        {...props}
+        onComplete={onOnboardingComplete || (() => {})}
+      />
+    );
+  };
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      documentTitle={{
+        formatter: (options, route) =>
+          `${options?.title ?? route?.name} - CityBuddy AI`,
+      }}
+      onReady={() => console.log('NavigationContainer: Ready')}
+      onStateChange={(state) => console.log('NavigationContainer: State changed', state)}>
       <Stack.Navigator
         initialRouteName={initialRouteName}
         screenOptions={{
@@ -39,6 +50,9 @@ export const AppNavigator: React.FC<AppNavigatorProps> = ({
           headerTintColor: '#fff',
           headerTitleStyle: {
             fontWeight: 'bold',
+          },
+          contentStyle: {
+            backgroundColor: '#fff',
           },
         }}>
         <Stack.Screen

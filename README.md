@@ -41,6 +41,14 @@ A React Native app built with TypeScript that helps newcomers navigate their cit
    - Copy it to your `.env` file
 
 3. **Run the app:**
+   
+   **For Web (Recommended for quick demo):**
+   ```bash
+   npm run web:dev
+   ```
+   This will start the app at http://localhost:3000
+   
+   **For Mobile:**
    ```bash
    # Start Metro bundler
    npm start

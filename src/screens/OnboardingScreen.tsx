@@ -28,6 +28,7 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
   navigation,
   onComplete,
 }) => {
+  console.log('OnboardingScreen: Rendering');
   const [userType, setUserType] = useState<UserType>('newcomer');
   const [interests, setInterests] = useState<Interest[]>([]);
   const [budget, setBudget] = useState<BudgetPreference>('medium');
