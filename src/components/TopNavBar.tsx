@@ -61,7 +61,7 @@ export const TopNavBar: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#2196f3',
+    backgroundColor: '#8a2be2',
     borderBottomWidth: 1,
     borderBottomColor: '#1976d2',
     paddingVertical: 8,

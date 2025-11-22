@@ -28,8 +28,15 @@ export const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    navigation.setOptions({
+      headerStyle: {
+        backgroundColor: '#8a2be2', // New Nav Bar Background Color
+      },
+      headerTintColor: '#ffffff', // New Title and Back Button Color (for contrast)
+    });
+
     loadRecommendations();
-  }, [category]);
+  }, [navigation, category]);
 
   const loadRecommendations = async () => {
     setLoading(true);
@@ -100,8 +107,7 @@ export const RecommendationsScreen: React.FC<RecommendationsScreenProps> = ({
       <Button
         mode="outlined"
         onPress={loadRecommendations}
-        style={styles.refreshButton}
-        icon="refresh">
+        style={styles.refreshButton}>
         Refresh
       </Button>
     </ScrollView>
@@ -131,6 +137,9 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 12,
+    borderWidth: 2,
+    borderColor: "#19052b"
+    
   },
   cardHeader: {
     flexDirection: 'row',
@@ -138,7 +147,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
-  placeName: {
+  placeName: { 
     flex: 1,
     fontWeight: '600',
   },

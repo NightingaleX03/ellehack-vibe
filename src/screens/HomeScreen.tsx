@@ -63,7 +63,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({navigation}) => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text variant="headlineLarge" style={styles.title}>
-        CityBuddy AI
+         🏙️ CityBuddy 🏙️
       </Text>
       <Text variant="bodyLarge" style={styles.subtitle}>
         Your AI-powered city guide
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
   subtitle: {
     textAlign: 'center',
     marginBottom: 24,
-    color: '#666',
+    color: '#19052b',
   },
   grid: {
     flexDirection: 'row',
@@ -120,6 +120,9 @@ const styles = StyleSheet.create({
     width: '48%',
     marginBottom: 16,
     minHeight: 140,
+    borderWidth: 2,
+    borderColor: "#19052b"
+    
   },
   cardContent: {
     alignItems: 'center',
@@ -136,7 +139,7 @@ const styles = StyleSheet.create({
   },
   cardSubtitle: {
     textAlign: 'center',
-    color: '#666',
+    color: '#19052b',
   },
 });
 

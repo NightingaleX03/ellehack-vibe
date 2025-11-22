@@ -40,7 +40,7 @@ export const ExploreScreen: React.FC<ExploreScreenProps> = ({navigation}) => {
             <Text variant="titleMedium" style={styles.cardTitle}>
               {item.name}
             </Text>
-            <Button mode="text" icon="arrow-right">
+            <Button mode="text">
               Explore
             </Button>
           </Card.Content>
@@ -64,10 +64,12 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     marginBottom: 16,
-    color: '#666',
+    color: '#19052b',
   },
   card: {
     marginBottom: 12,
+    borderWidth: 2,
+    borderColor: "#19052b"
   },
   cardContent: {
     flexDirection: 'row',

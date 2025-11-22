@@ -76,6 +76,17 @@ export const EmergencyScreen: React.FC<EmergencyScreenProps> = ({navigation}) =>
         Nearest emergency services
       </Text>
 
+      <Card style={styles.emergencyCard}>
+        <Card.Content>
+          <Text variant="titleMedium" style={styles.emergencyTitle}>
+            🚨 In case of emergency, call 911
+          </Text>
+          <Text variant="bodySmall" style={styles.emergencyText}>
+            For immediate life-threatening emergencies, always call 911 first.
+          </Text>
+        </Card.Content>
+      </Card>
+
       {services.length === 0 ? (
         <Card style={styles.card}>
           <Card.Content>
@@ -122,21 +133,11 @@ export const EmergencyScreen: React.FC<EmergencyScreenProps> = ({navigation}) =>
       <Button
         mode="outlined"
         onPress={loadEmergencyServices}
-        style={styles.refreshButton}
-        icon="refresh">
+        style={styles.refreshButton}>
         Refresh
       </Button>
 
-      <Card style={styles.emergencyCard}>
-        <Card.Content>
-          <Text variant="titleMedium" style={styles.emergencyTitle}>
-            🚨 In case of emergency, call 911
-          </Text>
-          <Text variant="bodySmall" style={styles.emergencyText}>
-            For immediate life-threatening emergencies, always call 911 first.
-          </Text>
-        </Card.Content>
-      </Card>
+      
     </ScrollView>
   );
 };
@@ -168,6 +169,8 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 12,
+    borderWidth: 2,
+    borderColor: "#19052b"
   },
   cardHeader: {
     flexDirection: 'row',
@@ -210,6 +213,8 @@ const styles = StyleSheet.create({
   refreshButton: {
     marginTop: 8,
     marginBottom: 16,
+    borderColor: '#6e57a8',
+    color: '#19052b'
   },
   emergencyCard: {
     backgroundColor: '#ffebee',

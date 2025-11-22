@@ -180,6 +180,8 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 16,
+    borderWidth: 2,
+    borderColor: "#19052b"
   },
   cardHeader: {
     flexDirection: 'row',
@@ -190,6 +192,7 @@ const styles = StyleSheet.create({
   name: {
     flex: 1,
     fontWeight: '600',
+    color: '#19052b'
   },
   budgetChip: {
     marginLeft: 8,
